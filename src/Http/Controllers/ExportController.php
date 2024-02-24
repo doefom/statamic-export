@@ -32,12 +32,15 @@ class ExportController extends BaseController
             throw ValidationException::withMessages(['collection_handle' => 'Collection handle is required.']);
         }
 
+        // Validate include headers
+        $includeHeaders = $request->input('headers', 'true') === 'true';
+
         // Query the entries by collection
         $items = Entry::query()
             ->where('collection', $collectionHandle)
             ->get();
 
         // Download the export
-        return Excel::download(new EntriesExport($items), "$collectionHandle.$fileType");
+        return Excel::download(new EntriesExport($items, ['headers' => $includeHeaders]), "$collectionHandle.$fileType");
     }
 }

@@ -27,9 +27,9 @@
                     @enderror
                 </div>
 
-                <!-- File type -->
+                <!-- File Type -->
                 <div class="select-input-container">
-                    <label class="mb-2 whitespace-nowrap" for="file_type">{{ __('File type') }}</label>
+                    <label class="mb-2 whitespace-nowrap" for="file_type">{{ __('File Type') }}</label>
                     <select class="pr-4" id="file_type" name="file_type" style="min-width: 70px">
                         @foreach(\Doefom\StatamicExport\Enums\FileType::all() as $fileType)
                             <option value="{{ $fileType }}">{{ strtoupper($fileType) }}</option>
@@ -38,6 +38,15 @@
                     @error('file_type')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
+                </div>
+
+                <!-- Include Headers -->
+                <div class="select-input-container">
+                    <label class="mb-2 whitespace-nowrap" for="headers">{{ __('Include Headers') }}</label>
+                    <select class="pr-4" id="headers" name="headers" style="min-width: 70px">
+                        <option value="true" selected>{{ __('Yes') }}</option>
+                        <option value="false">{{ __('No') }}</option>
+                    </select>
                 </div>
 
             </div>
