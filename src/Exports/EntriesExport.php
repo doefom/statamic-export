@@ -25,7 +25,7 @@ class EntriesExport implements FromCollection, WithStyles
         $keys = $this->getAllKeysCombined($this->items);
 
         $result = [];
-        foreach ($keys as $key) {
+        foreach ($keys as $key => $label) {
             // Add the key to the collection if it doesn't exist
             foreach ($this->items as $index => $item) {
                 $value = $item->augmentedValue($key);
@@ -176,10 +176,39 @@ class EntriesExport implements FromCollection, WithStyles
 
     private function getAllKeysCombined(Collection $items): Collection
     {
-        return $items
+        $keys = $items
             ->map(fn(Entry $item) => $item->blueprint()->fields()->all()->keys())
             ->flatten()
             ->unique();
+
+        $keyLabelPairs = [];
+        foreach ($keys as $key) {
+            foreach ($items as $item) {
+                // Check if key is already in the array
+                if (Arr::has($keyLabelPairs, $key)) {
+                    break;
+                }
+
+                // Get the label for the key and skip if the fieldtype is null.
+                // This is particularly important for fields that are not present in all entries because then the
+                // augmented value will not have a fieldtype which will result in an error.
+                $augmentedValue = $item->augmentedValue($key);
+                if ($augmentedValue->fieldtype() === null) {
+                    continue;
+                }
+
+                // Skip if the label is null
+                $labelForKey = $augmentedValue->field()->display();
+                if ($labelForKey === null) {
+                    continue;
+                }
+
+                // Add the key and label to the array
+                $keyLabelPairs[$key] = $labelForKey;
+            }
+        }
+
+        return collect($keyLabelPairs);
     }
 
     private function getAllLabelsCombined(Collection $items, Collection $keys): Collection
