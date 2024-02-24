@@ -94,6 +94,7 @@ class EntriesExport implements FromCollection
             || $fieldType instanceof \Statamic\Fieldtypes\Arr
             || $fieldType instanceof \Statamic\Fieldtypes\Grid
             || $fieldType instanceof \Statamic\Fieldtypes\Group
+            || $fieldType instanceof \Statamic\Fieldtypes\Replicator
         ) {
             return json_encode($value->value());
         }
