@@ -110,7 +110,10 @@ class EntriesExport implements FromCollection
             return $value->value()->label();
         }
 
-        if ($fieldType instanceof \Statamic\Fieldtypes\Icon) {
+        if (
+            $fieldType instanceof \Statamic\Fieldtypes\Icon
+            || $fieldType instanceof \Statamic\Fieldtypes\Date
+        ) {
             return $value->raw();
         }
 
