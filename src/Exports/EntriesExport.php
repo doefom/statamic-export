@@ -9,66 +9,35 @@ use Statamic\Entries\Entry;
 use Statamic\Contracts\Assets\Asset as AssetContract;
 use Statamic\Contracts\Entries\Entry as EntryContract;
 use Statamic\Contracts\Taxonomies\Term as TermContract;
-use Statamic\Fieldtypes\Slug;
 
-/**
- * Class EntriesExport
- * Implements FromCollection to allow exporting a collection of Statamic entries to Excel.
- * It leverages Laravel's collection methods to format and prepare the data for export.
- */
 class EntriesExport implements FromCollection
 {
-    /**
-     * Constructor to inject the collection of items to be exported.
-     *
-     * @param Collection $items The collection of items (entries) to be exported.
-     */
     public function __construct(public Collection $items)
     {
     }
 
-    /**
-     * Prepare the data collection for export.
-     *
-     * This method iterates over each item in the collection, transforming it into a format suitable for export.
-     * It retrieves the blueprint for each entry, iterates over the fields, and formats the value for export.
-     *
-     * @return Collection The formatted collection ready for export.
-     */
     public function collection(): Collection
     {
-        return $this->items->map(function (Entry $item) {
-            // Retrieve all field keys from the entry's blueprint
-            $keys = $item->blueprint()->fields()->all()->keys();
+        // Get all unique keys from all items
+        $keys = $this->getAllKeysCombined($this->items);
 
-            // Filter out fields that should not be exported because they do not store data
-            $keys = $keys->filter(function (string $key) use ($item) {
-                $fieldType = $item->augmentedValue($key)->fieldtype();
-                return !($fieldType instanceof \Statamic\Fieldtypes\Revealer
-                    || $fieldType instanceof \Statamic\Fieldtypes\HTML
-                    || $fieldType instanceof \Statamic\Fieldtypes\Spacer);
-            });
-
-            // Map over each key and retrieve its augmented value for export
-            return $keys->map(function (string $key) use ($item) {
+        $result = [];
+        foreach ($this->items as $item) {
+            // Initialize an array to store the item's values for each key
+            $values = [];
+            foreach ($keys as $key) {
+                // Get the augmented value for the key
                 $value = $item->augmentedValue($key);
-                // Convert each value to a string representation suitable for export
-                return $this->toString($value);
-            });
+                // Convert the value to a string representation suitable for export
+                $values[] = $this->toString($value);
+            }
+            // Add the mapped keys for this item to the result array
+            $result[] = $values;
+        }
 
-        });
+        return collect($result);
     }
 
-    /**
-     * Convert a given value into a string representation.
-     *
-     * This method handles various types of values (e.g., EntryCollection, Carbon, User, etc.)
-     * and converts them into a string format. This includes formatting dates, joining collection titles,
-     * and encoding arrays to JSON.
-     *
-     * @param mixed $value The value to be converted to a string.
-     * @return string The string representation of the value.
-     */
     private function toString(mixed $value): string
     {
         if ($value->value() === null) {
@@ -188,6 +157,14 @@ class EntriesExport implements FromCollection
         }
 
         return '';
+    }
+
+    private function getAllKeysCombined(Collection $items): Collection
+    {
+        return $items
+            ->map(fn(Entry $item) => $item->blueprint()->fields()->all()->keys())
+            ->flatten()
+            ->unique();
     }
 
 }
