@@ -164,7 +164,10 @@ class EntriesExport implements FromCollection
                 : $value->value()->get()->map(fn($item) => $item->title())->implode(', ');
         }
 
-        if ($fieldType instanceof \Statamic\Fieldtypes\Lists) {
+        if (
+            $fieldType instanceof \Statamic\Fieldtypes\Lists
+            || $fieldType instanceof \Statamic\Fieldtypes\Taggable
+        ) {
             return collect($value->value())->implode(', ');
         }
 
