@@ -88,6 +88,7 @@ class EntriesExport implements FromCollection
             || $fieldType instanceof \Statamic\Fieldtypes\Color
             || $fieldType instanceof \Statamic\Fieldtypes\Hidden
             || $fieldType instanceof \Statamic\Fieldtypes\Template
+            || $fieldType instanceof \Statamic\Fieldtypes\Yaml
         ) {
             return $value->value();
         }
