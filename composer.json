@@ -1,0 +1,22 @@
+{
+    "name": "doefom/statamic-export",
+    "autoload": {
+        "psr-4": {
+            "Doefom\\StatamicExport\\": "src"
+        }
+    },
+    "extra": {
+        "statamic": {
+            "name": "Statamic Export",
+            "description": "Statamic Export addon"
+        },
+        "laravel": {
+            "providers": [
+                "Doefom\\StatamicExport\\ServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "maatwebsite/excel": "^3.1"
+    }
+}
