@@ -78,6 +78,7 @@ class EntriesExport implements FromCollection
             || $fieldType instanceof \Statamic\Fieldtypes\Floatval
             || $fieldType instanceof \Statamic\Fieldtypes\Integer
             || $fieldType instanceof \Statamic\Fieldtypes\Color
+            || $fieldType instanceof \Statamic\Fieldtypes\Hidden
         ) {
             return $value->value();
         }
