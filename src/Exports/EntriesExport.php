@@ -22,17 +22,12 @@ class EntriesExport implements FromCollection
         $keys = $this->getAllKeysCombined($this->items);
 
         $result = [];
-        foreach ($this->items as $item) {
-            // Initialize an array to store the item's values for each key
-            $values = [];
-            foreach ($keys as $key) {
-                // Get the augmented value for the key
+        foreach ($keys as $key) {
+            // Add the key to the collection if it doesn't exist
+            foreach ($this->items as $index => $item) {
                 $value = $item->augmentedValue($key);
-                // Convert the value to a string representation suitable for export
-                $values[] = $this->toString($value);
+                $result[$index][$key] = $this->toString($value);
             }
-            // Add the mapped keys for this item to the result array
-            $result[] = $values;
         }
 
         return collect($result);
