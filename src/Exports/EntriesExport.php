@@ -4,6 +4,7 @@ namespace Doefom\StatamicExport\Exports;
 
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Statamic\Contracts\Auth\User;
 use Statamic\Entries\Entry;
 use Statamic\Contracts\Assets\Asset as AssetContract;
 use Statamic\Contracts\Entries\Entry as EntryContract;
@@ -128,9 +129,7 @@ class EntriesExport implements FromCollection
         if ($fieldType instanceof \Statamic\Fieldtypes\Entries) {
             return $value->value() instanceof EntryContract
                 ? $value->value()->title // Single entry
-                : $value->value()->get() // Multiple entries (\Statamic\Query\StatusQueryBuilder)
-                ->map(fn(EntryContract $entry) => $entry->title)
-                    ->implode(', ');
+                : $value->value()->get()->map(fn(EntryContract $entry) => $entry->title)->implode(', '); // Multiple entries (\Statamic\Query\StatusQueryBuilder)
         }
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Link) {
@@ -149,6 +148,12 @@ class EntriesExport implements FromCollection
         if ($fieldType instanceof \Statamic\Fieldtypes\Terms) {
             return $value->value() instanceof TermContract
                 ? $value->value()->title()
+                : $value->value()->get()->map(fn($item) => $item->title())->implode(', ');
+        }
+
+        if ($fieldType instanceof \Statamic\Fieldtypes\Users) {
+            return $value->value() instanceof User
+                ? $value->value()->title
                 : $value->value()->get()->map(fn($item) => $item->title())->implode(', ');
         }
 
