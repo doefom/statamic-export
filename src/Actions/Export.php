@@ -29,6 +29,11 @@ class Export extends Action
             'default' => 'xlsx',
             'instructions' => 'Select the file type for the export.',
         ],
+        'headers' => [
+            'type' => 'toggle',
+            'default' => true,
+            'instructions' => 'Include headers in the export.',
+        ],
     ];
 
     public function download($items, $values): BinaryFileResponse|bool
@@ -36,7 +41,7 @@ class Export extends Action
         $collectionHandle = $items->first()->collection()->handle();
         $fileType = Arr::get($values, 'file_type', 'xlsx');
 
-        return Excel::download(new EntriesExport($items), "$collectionHandle.$fileType");
+        return Excel::download(new EntriesExport($items, $values), "$collectionHandle.$fileType");
     }
 
     public function visibleTo($item)

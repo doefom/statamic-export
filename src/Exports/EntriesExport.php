@@ -2,17 +2,20 @@
 
 namespace Doefom\StatamicExport\Exports;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Statamic\Contracts\Auth\User;
 use Statamic\Entries\Entry;
 use Statamic\Contracts\Assets\Asset as AssetContract;
 use Statamic\Contracts\Entries\Entry as EntryContract;
 use Statamic\Contracts\Taxonomies\Term as TermContract;
 
-class EntriesExport implements FromCollection
+class EntriesExport implements FromCollection, WithStyles
 {
-    public function __construct(public Collection $items)
+    public function __construct(public Collection $items, public array $config = [])
     {
     }
 
@@ -30,7 +33,24 @@ class EntriesExport implements FromCollection
             }
         }
 
+        // Add the headers to the collection
+        if (Arr::get($this->config, 'headers', true)) {
+            $result = array_prepend($result, $keys->toArray());
+        }
+
         return collect($result);
+    }
+
+    public function styles(Worksheet $sheet): array
+    {
+        $styles = [];
+
+        $hasHeaders = Arr::get($this->config, 'headers', true);
+        if ($hasHeaders) {
+            $styles[1] = ['font' => ['bold' => true]];
+        }
+
+        return $styles;
     }
 
     private function toString(mixed $value): string
