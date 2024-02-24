@@ -4,7 +4,7 @@
 @section('content')
     <div class="mb-6">
         <h1 class="mb-2">{{ __('Export') }}</h1>
-        <p class="text-sm text-gray">{{ __('Choose a collection you\'d like to export and pick the preferred file type.') }}</p>
+        <p class="text-sm text-gray">{{ __("Choose the collection you'd like to export, pick your preferred file type and you're ready to go. It really is that easy.") }}</p>
     </div>
 
     <div class="card">
@@ -23,7 +23,7 @@
                         @endforeach
                     </select>
                     @error('collection_handle')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -36,7 +36,7 @@
                         @endforeach
                     </select>
                     @error('file_type')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 

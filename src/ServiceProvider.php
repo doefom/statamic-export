@@ -18,7 +18,10 @@ class ServiceProvider extends AddonServiceProvider
 
         // Register the export utility
         Utility::extend(function () {
-            Utility::register('export')->view('statamic-export::export.utility');
+            Utility::register('export')
+                ->view('statamic-export::export.utility')
+                ->icon('download')
+                ->description('Export all entries of a collection into the format of your choosing. Make it Excel, CSV and more.');
         });
 
         $this->registerActionRoutes(function () {
