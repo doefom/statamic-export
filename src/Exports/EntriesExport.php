@@ -9,6 +9,7 @@ use Statamic\Entries\Entry;
 use Statamic\Contracts\Assets\Asset as AssetContract;
 use Statamic\Contracts\Entries\Entry as EntryContract;
 use Statamic\Contracts\Taxonomies\Term as TermContract;
+use Statamic\Fieldtypes\Slug;
 
 /**
  * Class EntriesExport
@@ -40,6 +41,14 @@ class EntriesExport implements FromCollection
             // Retrieve all field keys from the entry's blueprint
             $keys = $item->blueprint()->fields()->all()->keys();
 
+            // Filter out fields that should not be exported because they do not store data
+            $keys = $keys->filter(function (string $key) use ($item) {
+                $fieldType = $item->augmentedValue($key)->fieldtype();
+                return !($fieldType instanceof \Statamic\Fieldtypes\Revealer
+                    || $fieldType instanceof \Statamic\Fieldtypes\HTML
+                    || $fieldType instanceof \Statamic\Fieldtypes\Spacer);
+            });
+
             // Map over each key and retrieve its augmented value for export
             return $keys->map(function (string $key) use ($item) {
                 $value = $item->augmentedValue($key);
@@ -66,11 +75,10 @@ class EntriesExport implements FromCollection
             return '';
         }
 
-        // Note: Revealer field type cannot be exported as it is not used to store data.
         $fieldType = $value->fieldtype();
 
         if (
-            $fieldType instanceof \Statamic\Fieldtypes\Text
+            $fieldType instanceof \Statamic\Fieldtypes\Text // Slug field type inherits from Text and therefore must not be checked separately
             || $fieldType instanceof \Statamic\Fieldtypes\Bard
             || $fieldType instanceof \Statamic\Fieldtypes\Markdown
             || $fieldType instanceof \Statamic\Fieldtypes\Textarea
@@ -79,6 +87,7 @@ class EntriesExport implements FromCollection
             || $fieldType instanceof \Statamic\Fieldtypes\Integer
             || $fieldType instanceof \Statamic\Fieldtypes\Color
             || $fieldType instanceof \Statamic\Fieldtypes\Hidden
+            || $fieldType instanceof \Statamic\Fieldtypes\Spacer
         ) {
             return $value->value();
         }
