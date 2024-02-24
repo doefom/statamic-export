@@ -211,10 +211,4 @@ class EntriesExport implements FromCollection, WithStyles
         return collect($keyLabelPairs);
     }
 
-    private function getAllLabelsCombined(Collection $items, Collection $keys): Collection
-    {
-        // TODO: Get the labels by using the keys
-        return collect();
-    }
-
 }
