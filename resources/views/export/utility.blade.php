@@ -31,12 +31,9 @@
                 <div class="select-input-container">
                     <label class="mb-2 whitespace-nowrap" for="file_type">{{ __('File type') }}</label>
                     <select class="pr-4" id="file_type" name="file_type" style="min-width: 70px">
-                        <option value="xlsx">XLSX</option>
-                        <option value="csv">CSV</option>
-                        <option value="tsv">TSV</option>
-                        <option value="ods">ODS</option>
-                        <option value="xls">XLS</option>
-                        <option value="html">HTML</option>
+                        @foreach(\Doefom\StatamicExport\Enums\FileType::all() as $fileType)
+                            <option value="{{ $fileType }}">{{ strtoupper($fileType) }}</option>
+                        @endforeach
                     </select>
                     @error('file_type')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -45,6 +42,7 @@
 
             </div>
 
+            <!-- Submit -->
             <button type="submit" class="btn-primary">{{ __('Export collection') }}</button>
         </form>
     </div>

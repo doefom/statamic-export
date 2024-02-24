@@ -2,6 +2,7 @@
 
 namespace Doefom\StatamicExport\Http\Controllers;
 
+use Doefom\StatamicExport\Enums\FileType;
 use Doefom\StatamicExport\Exports\EntriesExport;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -19,10 +20,9 @@ class ExportController extends BaseController
     {
         $this->authorize('access export utility');
 
-        // Validate the file type
+        // Validate the file type using the enum
         $fileType = $request->input('file_type', 'xlsx');
-        $allowedFileTypes = ['xlsx', 'csv', 'tsv', 'ods', 'xls', 'html'];
-        if (!in_array($fileType, $allowedFileTypes)) {
+        if (!FileType::isValid($fileType)) {
             throw ValidationException::withMessages(['file_type' => 'Invalid file type.']);
         }
 

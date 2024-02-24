@@ -2,6 +2,7 @@
 
 namespace Doefom\StatamicExport\Actions;
 
+use Doefom\StatamicExport\Enums\FileType;
 use Doefom\StatamicExport\Exports\EntriesExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Statamic\Actions\Action;
@@ -15,26 +16,26 @@ class Export extends Action
 
     // TODO: Support form submissions as well
 
-    protected $fields = [
-        'file_type' => [
-            'type' => 'select',
-            'options' => [
-                'xlsx' => 'XLSX',
-                'csv' => 'CSV',
-                'tsv' => 'TSV',
-                'ods' => 'ODS',
-                'xls' => 'XLS',
-                'html' => 'HTML',
+    public function __construct()
+    {
+        $fileTypeOptions = collect(FileType::all())->mapWithKeys(function ($fileType) {
+            return [$fileType => strtoupper($fileType)];
+        })->all();
+
+        $this->fields = [
+            'file_type' => [
+                'type' => 'select',
+                'options' => $fileTypeOptions,
+                'default' => FileType::XLSX->value,
+                'instructions' => 'Select the file type for the export.',
             ],
-            'default' => 'xlsx',
-            'instructions' => 'Select the file type for the export.',
-        ],
-        'headers' => [
-            'type' => 'toggle',
-            'default' => true,
-            'instructions' => 'Include headers in the export.',
-        ],
-    ];
+            'headers' => [
+                'type' => 'toggle',
+                'default' => true,
+                'instructions' => 'Include headers in the export.',
+            ],
+        ];
+    }
 
     public function download($items, $values): BinaryFileResponse|bool
     {
