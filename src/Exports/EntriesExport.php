@@ -77,6 +77,7 @@ class EntriesExport implements FromCollection
             || $fieldType instanceof \Statamic\Fieldtypes\Video
             || $fieldType instanceof \Statamic\Fieldtypes\Floatval
             || $fieldType instanceof \Statamic\Fieldtypes\Integer
+            || $fieldType instanceof \Statamic\Fieldtypes\Color
         ) {
             return $value->value();
         }
