@@ -87,7 +87,7 @@ class EntriesExport implements FromCollection
             || $fieldType instanceof \Statamic\Fieldtypes\Integer
             || $fieldType instanceof \Statamic\Fieldtypes\Color
             || $fieldType instanceof \Statamic\Fieldtypes\Hidden
-            || $fieldType instanceof \Statamic\Fieldtypes\Spacer
+            || $fieldType instanceof \Statamic\Fieldtypes\Template
         ) {
             return $value->value();
         }
@@ -123,6 +123,7 @@ class EntriesExport implements FromCollection
         if (
             $fieldType instanceof \Statamic\Fieldtypes\Icon
             || $fieldType instanceof \Statamic\Fieldtypes\Date
+            || $fieldType instanceof \Statamic\Fieldtypes\Time
         ) {
             return $value->raw();
         }
