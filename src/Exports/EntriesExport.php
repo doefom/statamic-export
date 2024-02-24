@@ -89,7 +89,10 @@ class EntriesExport implements FromCollection
             return $value->value() ? 'yes' : 'no';
         }
 
-        if ($fieldType instanceof \Statamic\Fieldtypes\Checkboxes) {
+        if (
+            $fieldType instanceof \Statamic\Fieldtypes\Checkboxes
+            || $fieldType instanceof \Statamic\Fieldtypes\Arr
+        ) {
             return json_encode($value->value());
         }
 
