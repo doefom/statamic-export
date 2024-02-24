@@ -92,6 +92,7 @@ class EntriesExport implements FromCollection
         if (
             $fieldType instanceof \Statamic\Fieldtypes\Checkboxes
             || $fieldType instanceof \Statamic\Fieldtypes\Arr
+            || $fieldType instanceof \Statamic\Fieldtypes\Grid
         ) {
             return json_encode($value->value());
         }
