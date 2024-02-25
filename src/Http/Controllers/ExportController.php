@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Statamic\Facades\Entry;
@@ -33,7 +34,7 @@ class ExportController extends BaseController
         }
 
         // Validate include headers
-        $includeHeaders = $request->input('headers', 'true') === 'true';
+        $includeHeaders = $request->input('headers', true);
 
         // Query the entries by collection
         $items = Entry::query()
