@@ -19,5 +19,5 @@
     "require": {
         "maatwebsite/excel": "^3.1"
     },
-    "license": "proprietary"
+    "license": "MIT"
 }
