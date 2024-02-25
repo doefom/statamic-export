@@ -81,7 +81,7 @@ export default {
                 <div class="lg:flex gap-3 mb-4">
 
                     <!-- Collection -->
-                    <div class="select-input-container relative w-full my-4">
+                    <div class="select-input-container relative w-full">
                         <label class="mb-2 whitespace-nowrap" for="collection_handle">Collection</label>
                         <select-input v-model="collectionHandle"
                                       :options="collectionOptions"/>
@@ -91,7 +91,7 @@ export default {
                     </div>
 
                     <!-- File Type -->
-                    <div class="select-input-container my-4">
+                    <div class="select-input-container">
                         <label class="mb-2 whitespace-nowrap" for="file_type">File Type</label>
                         <select-input v-model="fileType"
                                       :options="fileTypeOptions"
@@ -100,7 +100,7 @@ export default {
                     </div>
 
                     <!-- Include Headers -->
-                    <div class="my-4" style="min-width: 150px">
+                    <div style="min-width: 150px">
                         <label for="headers">
                             <div class=whitespace-nowrap>Include Headers</div>
                             <toggle-input v-model="headers" id="headers"/>
