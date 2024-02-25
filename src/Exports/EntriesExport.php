@@ -19,6 +19,14 @@ class EntriesExport implements FromCollection, WithStyles
     {
     }
 
+    /**
+     * Get all keys from all items combined (unique). Then go through all keys and check for each item if the key
+     * exists and if it does store the value. Else, store an empty string.
+     *
+     * If headers should be included, prepend those to the result array.
+     *
+     * @return Collection
+     */
     public function collection(): Collection
     {
         // Get all unique keys from all items
