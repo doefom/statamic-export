@@ -4,8 +4,8 @@
 @section('content')
 
     <export
-        :collections='@json(\Statamic\Facades\Collection::all())'
-        :file-types='@json(\Doefom\StatamicExport\Enums\FileType::all())'
+        :collections='@json($collections)'
+        :file-types='@json($fileTypes)'
     >
         <template #csrf>@csrf</template>
     </export>

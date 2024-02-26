@@ -3,8 +3,10 @@
 namespace Doefom\StatamicExport;
 
 use Doefom\StatamicExport\Actions\Export;
+use Doefom\StatamicExport\Enums\FileType;
 use Doefom\StatamicExport\Http\Controllers\ExportController;
 use Illuminate\Support\Facades\Route;
+use Statamic\Facades\Collection;
 use Statamic\Facades\Utility;
 use Statamic\Providers\AddonServiceProvider;
 
@@ -26,7 +28,12 @@ class ServiceProvider extends AddonServiceProvider
         // Register the export utility
         Utility::extend(function () {
             Utility::register('export')
-                ->view('statamic-export::export.utility')
+                ->view('statamic-export::export.utility', function ($request) {
+                    return [
+                        'collections' => Collection::all()->sortBy('title')->values(),
+                        'fileTypes' => FileType::all(),
+                    ];
+                })
                 ->icon('download')
                 ->description('Export all entries of a collection into the format of your choosing. Make it Excel, CSV and more.');
         });

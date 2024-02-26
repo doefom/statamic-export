@@ -7,6 +7,7 @@ export default {
             fileType: 'xlsx',
             headers: true,
             errors: {},
+            loading: false,
         }
     },
     computed: {
@@ -25,6 +26,7 @@ export default {
     },
     methods: {
         submit() {
+            this.loading = true;
             this.errors = {}; // Reset errors on new submission
             // Submit the form and download the file
             fetch('/!/statamic-export/export', {
@@ -57,7 +59,8 @@ export default {
                     a.click()
                     a.remove()
                 })
-                .catch(error => this.errors = error.errors);
+                .catch(error => this.errors = error.errors)
+                .finally(() => this.loading = false);
         }
     }
 }
@@ -109,8 +112,13 @@ export default {
 
                 </div>
 
-                <!-- Submit -->
-                <button type="submit" class="btn-primary">{{ __('Export collection') }}</button>
+                <div class="flex">
+                    <!-- Submit -->
+                    <button type="submit" class="btn-primary" :disabled="loading">{{ __('Export collection') }}</button>
+                    <!-- Spinner Container -->
+                    <loading-graphic v-if="loading" class="ml-4" inline></loading-graphic>
+                </div>
+
             </form>
         </div>
     </div>
