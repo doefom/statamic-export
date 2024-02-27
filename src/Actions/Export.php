@@ -34,6 +34,10 @@ class Export extends Action
                 'default' => true,
                 'instructions' => 'Include headers in the export.',
             ],
+            'excluded_fields' => [
+                'type' => 'taggable',
+                'instructions' => 'Enter the handles of the fields you want to exclude from the export. For example: `title`, `content`, etc.',
+            ],
         ];
     }
 

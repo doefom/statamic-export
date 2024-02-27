@@ -190,11 +190,17 @@ class EntriesExport implements FromCollection, WithStyles
 
     private function getAllKeysCombined(Collection $items): Collection
     {
+        $excludedFields = Arr::get($this->config, 'excluded_fields', []);
+
         return $items
             // Map each Entry item to its blueprint fields
             ->map(fn(Entry $item) => $item->blueprint()->fields()->all())
             // Flatten the resulting collection to remove nested structures
             ->flatten()
+            // Remove duplicate fields
+            ->unique(fn(Field $field) => $field->handle())
+            // Remove fields that are excluded by the user. If there are no excluded fields, this will have no effect.
+            ->filter(fn(Field $field) => !in_array($field->handle(), $excludedFields))
             // Filter out fields that are instances of certain field types
             ->filter(function (Field $field) {
                 return !$field->fieldtype() instanceof \Statamic\Fieldtypes\Hidden
@@ -202,8 +208,6 @@ class EntriesExport implements FromCollection, WithStyles
                     && !$field->fieldtype() instanceof \Statamic\Fieldtypes\Html
                     && !$field->fieldtype() instanceof \Statamic\Fieldtypes\Spacer;
             })
-            // Remove duplicate fields
-            ->unique(fn(Field $field) => $field->handle())
             // Map the fields to a key-value pair with the handle as key and the display name as value
             ->mapWithKeys(fn(Field $field) => [$field->handle() => $field->display()]);
     }
