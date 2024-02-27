@@ -190,7 +190,7 @@ class EntriesExport implements FromCollection, WithStyles
 
     private function getAllKeysCombined(Collection $items): Collection
     {
-        $keys = $items
+        return $items
             // Map each Entry item to its blueprint fields
             ->map(fn(Entry $item) => $item->blueprint()->fields()->all())
             // Flatten the resulting collection to remove nested structures
@@ -202,39 +202,10 @@ class EntriesExport implements FromCollection, WithStyles
                     && !$field->fieldtype() instanceof \Statamic\Fieldtypes\Html
                     && !$field->fieldtype() instanceof \Statamic\Fieldtypes\Spacer;
             })
-            // Map each remaining Field object to its handle (a unique identifier)
-            ->map(fn(Field $field) => $field->handle())
-            // Remove duplicate handles to ensure each is unique
-            ->unique();
-
-        $keyLabelPairs = [];
-        foreach ($keys as $key) {
-            foreach ($items as $item) {
-                // Check if key is already in the array
-                if (Arr::has($keyLabelPairs, $key)) {
-                    break;
-                }
-
-                // Get the label for the key and skip if the fieldtype is null.
-                // This is particularly important for fields that are not present in all entries because then the
-                // augmented value will not have a fieldtype which will result in an error.
-                $augmentedValue = $item->augmentedValue($key);
-                if ($augmentedValue->fieldtype() === null) {
-                    continue;
-                }
-
-                // Skip if the label is null
-                $labelForKey = $augmentedValue->field()->display();
-                if ($labelForKey === null) {
-                    continue;
-                }
-
-                // Add the key and label to the array
-                $keyLabelPairs[$key] = $labelForKey;
-            }
-        }
-
-        return collect($keyLabelPairs);
+            // Remove duplicate fields
+            ->unique(fn(Field $field) => $field->handle())
+            // Map the fields to a key-value pair with the handle as key and the display name as value
+            ->mapWithKeys(fn(Field $field) => [$field->handle() => $field->display()]);
     }
 
 }
