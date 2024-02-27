@@ -26,6 +26,8 @@ So, there are quite a few fieldtypes available in Statamic. We're supporting **a
 - We do not support custom fieldtypes (yet). There will be a way to extend the functionality to support custom
   fieldtypes in the future.
 - However, if your custom fieldtypes extend one of the default fieldtypes, it should work just fine.
+- The fieldtypes `\Statamic\Fieldtypes\Hidden`, `\Statamic\Fieldtypes\Revealer`, `\Statamic\Fieldtypes\Html`
+  and `\Statamic\Fieldtypes\Spacer` are excluded by default because they don't contain any data.
 
 ## How to Install
 

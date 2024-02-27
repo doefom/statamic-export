@@ -12,6 +12,7 @@ use Statamic\Entries\Entry;
 use Statamic\Contracts\Assets\Asset as AssetContract;
 use Statamic\Contracts\Entries\Entry as EntryContract;
 use Statamic\Contracts\Taxonomies\Term as TermContract;
+use Statamic\Fields\Field;
 
 class EntriesExport implements FromCollection, WithStyles
 {
@@ -190,8 +191,20 @@ class EntriesExport implements FromCollection, WithStyles
     private function getAllKeysCombined(Collection $items): Collection
     {
         $keys = $items
-            ->map(fn(Entry $item) => $item->blueprint()->fields()->all()->keys())
+            // Map each Entry item to its blueprint fields
+            ->map(fn(Entry $item) => $item->blueprint()->fields()->all())
+            // Flatten the resulting collection to remove nested structures
             ->flatten()
+            // Filter out fields that are instances of certain field types
+            ->filter(function (Field $field) {
+                return !$field->fieldtype() instanceof \Statamic\Fieldtypes\Hidden
+                    && !$field->fieldtype() instanceof \Statamic\Fieldtypes\Revealer
+                    && !$field->fieldtype() instanceof \Statamic\Fieldtypes\Html
+                    && !$field->fieldtype() instanceof \Statamic\Fieldtypes\Spacer;
+            })
+            // Map each remaining Field object to its handle (a unique identifier)
+            ->map(fn(Field $field) => $field->handle())
+            // Remove duplicate handles to ensure each is unique
             ->unique();
 
         $keyLabelPairs = [];
