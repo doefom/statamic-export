@@ -36,6 +36,11 @@ class EntriesExport implements FromCollection, WithStyles
         foreach ($keys as $key => $label) {
             // Add the key to the collection if it doesn't exist
             foreach ($this->items as $index => $item) {
+                // If the key doesn't exist, add an empty string to avoid unnecessary augmentation.
+                if ($item->get($key) === null) {
+                    $result[$index][$key] = ''; // Necessary to prevent mixing up columns
+                    continue;
+                }
                 $value = $item->augmentedValue($key);
                 $result[$index][$key] = $this->toString($value);
             }
