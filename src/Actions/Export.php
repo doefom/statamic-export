@@ -31,12 +31,12 @@ class Export extends Action
             ],
             'excluded_fields' => [
                 'type' => 'taggable',
-                'instructions' => 'Enter the handles of the fields you want to exclude from the export. For example: `title`, `content`, etc.',
+                'instructions' => "Add the fields you want to exclude from the export by entering the field handle. For example: `title`, `content`, etc. If you don't add any, all fields will be included.",
             ],
             'headers' => [
                 'type' => 'toggle',
                 'default' => true,
-                'instructions' => 'Include headers in the export.',
+                'instructions' => 'Add a header row as the first row of your exported file which contains the display names of the field for each column.',
             ],
         ];
     }
@@ -52,6 +52,11 @@ class Export extends Action
     public function visibleTo($item)
     {
         return $item instanceof Entry;
+    }
+
+    public function buttonText()
+    {
+        return 'Export entries';
     }
 
 }

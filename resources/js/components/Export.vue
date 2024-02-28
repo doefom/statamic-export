@@ -90,7 +90,7 @@ export default {
                 <div class="select-input-container mb-4">
                     <div class="mb-2">
                         <label class="whitespace-nowrap" for="collection_handle">Collection</label>
-                        <p class="text-xs text-gray-700">Select the file type for the export.</p>
+                        <p class="text-xs text-gray-700">Select the collection you want to export.</p>
                     </div>
                     <select-input v-model="collectionHandle"
                                   :options="collectionOptions"
@@ -119,7 +119,10 @@ export default {
                 <div class="select-input-container mb-4">
                     <div class="mb-2">
                         <label class="whitespace-nowrap" for="excluded_fields">Excluded Fields</label>
-                        <p class="text-xs text-gray-700">Select a collection to choose the handles of the fields you want to exclude from the export.</p>
+                        <p class="text-xs text-gray-700">
+                            Select the fields you want to exclude from the export. If you don't select any fields, all
+                            fields will be included. (Pick a collection to get a list of all available fields)
+                        </p>
                     </div>
                     <v-select v-model="excludedFields"
                               id="excluded_fields"
