@@ -1,11 +1,12 @@
 <script>
 export default {
-    props: ['collections', 'fileTypes'],
+    props: ['collections', 'fileTypes', 'fieldHandles'],
     data() {
         return {
             collectionHandle: null,
             fileType: 'xlsx',
             headers: true,
+            excludedFields: [],
             errors: {},
             loading: false,
         }
@@ -22,7 +23,10 @@ export default {
                 label: fileType.toUpperCase(),
                 value: fileType
             }))
-        }
+        },
+        fieldHandlesForSelectedCollection() {
+            return this.fieldHandles[this.collectionHandle] || []
+        },
     },
     methods: {
         submit() {
@@ -39,6 +43,7 @@ export default {
                 body: JSON.stringify({
                     collection_handle: this.collectionHandle,
                     file_type: this.fileType,
+                    excluded_fields: this.excludedFields,
                     headers: this.headers
                 })
             })
@@ -81,35 +86,56 @@ export default {
             <form @submit.prevent="submit">
                 <slot name="csrf"/>
 
-                <div class="lg:flex gap-3 mb-4">
-
-                    <!-- Collection -->
-                    <div class="select-input-container relative w-full">
+                <!-- Collection -->
+                <div class="select-input-container mb-4">
+                    <div class="mb-2">
                         <label class="mb-2 whitespace-nowrap" for="collection_handle">Collection</label>
-                        <select-input v-model="collectionHandle"
-                                      :options="collectionOptions"/>
-                        <p class="text-red-500 text-xs mt-1" v-if="errors.collection_handle">
-                            {{ errors.collection_handle[0] }}
-                        </p>
+                        <p class="text-xs text-gray-700">Select the file type for the export.</p>
                     </div>
+                    <select-input v-model="collectionHandle"
+                                  :options="collectionOptions"
+                                  id="collection_handle"/>
+                    <p class="text-red-500 text-xs mt-1" v-if="errors.collection_handle">
+                        {{ errors.collection_handle[0] }}
+                    </p>
+                </div>
 
-                    <!-- File Type -->
-                    <div class="select-input-container">
+                <!-- File Type -->
+                <div class="select-input-container mb-4">
+                    <div class="mb-2">
                         <label class="mb-2 whitespace-nowrap" for="file_type">File Type</label>
-                        <select-input v-model="fileType"
-                                      :options="fileTypeOptions"
-                                      id="file_type"
-                                      style="min-width: 150px"/>
+                        <p class="text-xs text-gray-700">Select the file type for the export.</p>
                     </div>
+                    <select-input v-model="fileType"
+                                  :options="fileTypeOptions"
+                                  id="file_type"
+                                  style="min-width: 150px"/>
+                </div>
 
-                    <!-- Include Headers -->
-                    <div style="min-width: 150px">
-                        <label for="headers">
-                            <div class=whitespace-nowrap>Include Headers</div>
-                            <toggle-input v-model="headers" id="headers"/>
-                        </label>
+                <!-- Excluded Fields -->
+                <div class="select-input-container mb-4">
+                    <div class="mb-2">
+                        <label class="whitespace-nowrap" for="excluded_fields">Excluded Fields</label>
+                        <p class="text-xs text-gray-700">Select a collection to choose the handles of the fields you want to exclude from the export.</p>
                     </div>
+                    <v-select v-model="excludedFields"
+                              id="excluded_fields"
+                              :multiple="true"
+                              :disabled="fieldHandlesForSelectedCollection.length === 0"
+                              :options="fieldHandlesForSelectedCollection">
+                    </v-select>
+                </div>
 
+                <!-- Include Headers -->
+                <div class="mb-4" style="min-width: 150px">
+                    <label for="headers">
+                        <div class="mb-2">
+                            <label class="whitespace-nowrap" for="headers">Include Headers</label>
+                            <p class="text-xs text-gray-700">Add a header row as the first row of your exported file
+                                which contains the display names of the field for each column.</p>
+                        </div>
+                        <toggle-input v-model="headers" id="headers"/>
+                    </label>
                 </div>
 
                 <div class="flex">

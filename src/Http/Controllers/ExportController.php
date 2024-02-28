@@ -33,6 +33,9 @@ class ExportController extends BaseController
             throw ValidationException::withMessages(['collection_handle' => 'Collection handle is required.']);
         }
 
+        // Excluded fields
+        $excludedFields = $request->input('excluded_fields', []);
+
         // Validate include headers
         $includeHeaders = $request->input('headers', true);
 
@@ -42,6 +45,9 @@ class ExportController extends BaseController
             ->get();
 
         // Download the export
-        return Excel::download(new EntriesExport($items, ['headers' => $includeHeaders]), "$collectionHandle.$fileType");
+        return Excel::download(new EntriesExport($items, [
+            'headers' => $includeHeaders,
+            'excluded_fields' => $excludedFields,
+        ]), "$collectionHandle.$fileType");
     }
 }
