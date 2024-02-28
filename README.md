@@ -52,17 +52,16 @@ Once installed, there are basically two ways to use this addon.
 1. Head to the entries listing of one of your collections.
 2. Select one or more entries
 3. Click the "Export" action above the table.
-4. Choose your export format and specify if you want to include headers (included by default).
+4. Choose your export format, exclude certain fields if you want to and specify whether you'd like to include headers (included by default).
 
 ### Exporting Collections
 
 1. Navigate to Utilities > Export
-2. Select your collection, export format, and whether to include headers or not.
+2. Select your collection, export format, add excluded fields if you want to and specify whether to include headers or not.
 3. Click the "Export collection" button.
 
 ## Roadmap
 
 - [ ] Introduce support for custom fieldtypes that do not extend the default fieldtypes
 - [ ] Implement PDF export functionality
-- [ ] Support customizing the export columns
 - [ ] Support setting the export filename
