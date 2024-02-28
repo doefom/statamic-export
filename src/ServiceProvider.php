@@ -28,20 +28,8 @@ class ServiceProvider extends AddonServiceProvider
 
         // Register the export utility
         Utility::extend(function () {
-
-            $collections = Collection::all()->sortBy('title');
-            $fieldHandles = $collections->mapWithKeys(function ($collection) {
-                return [$collection->handle() => $this->getFieldHandles($collection)];
-            });
-
             Utility::register('export')
-                ->view('statamic-export::export.utility', function ($request) use ($collections, $fieldHandles) {
-                    return [
-                        'collections' => $collections->values(),
-                        'fieldHandles' => $fieldHandles,
-                        'fileTypes' => FileType::all(),
-                    ];
-                })
+                ->action([ExportController::class, 'index'])
                 ->icon('download')
                 ->description('Export all entries of a collection into the format of your choosing. Make it Excel, CSV and more.');
         });
@@ -53,20 +41,4 @@ class ServiceProvider extends AddonServiceProvider
 
     }
 
-    /**
-     * Get all unique field handles for a collection.
-     * @param \Statamic\Entries\Collection $collection
-     * @return mixed
-     */
-    private function getFieldHandles(\Statamic\Entries\Collection $collection)
-    {
-        return $collection->entryBlueprints()->map(function (Blueprint $blueprint): array {
-            return $blueprint->fields()->all()->keys()->toArray();
-        })
-            ->flatten()
-            ->unique()
-            ->sort()
-            ->values()
-            ->all();
-    }
 }

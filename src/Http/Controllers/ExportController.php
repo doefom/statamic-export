@@ -4,6 +4,7 @@ namespace Doefom\StatamicExport\Http\Controllers;
 
 use Doefom\StatamicExport\Enums\FileType;
 use Doefom\StatamicExport\Exports\EntriesExport;
+use Doefom\StatamicExport\Http\Requests\ExportRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
@@ -11,32 +12,38 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
+use Statamic\Fields\Blueprint;
 
 class ExportController extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
-    public function export(Request $request)
+    public function index()
     {
         $this->authorize('access export utility');
 
-        // Validate the file type using the enum
-        $fileType = $request->input('file_type', 'xlsx');
-        if (!FileType::isValid($fileType)) {
-            throw ValidationException::withMessages(['file_type' => 'Invalid file type.']);
-        }
+        $collections = Collection::all()->sortBy('title');
+        $fieldHandles = $collections->mapWithKeys(function ($collection) {
+            return [$collection->handle() => $this->getFieldHandles($collection)];
+        });
 
-        // Validate the collection handle
+        return view('statamic-export::export.utility', [
+            'collections' => $collections->values(),
+            'fieldHandles' => $fieldHandles,
+            'fileTypes' => FileType::all(),
+        ]);
+    }
+
+    public function export(ExportRequest $request)
+    {
+        $this->authorize('access export utility');
+
+        // Get the request parameters
         $collectionHandle = $request->input('collection_handle');
-        if (!$collectionHandle) {
-            throw ValidationException::withMessages(['collection_handle' => 'Collection handle is required.']);
-        }
-
-        // Excluded fields
+        $fileType = $request->input('file_type', 'xlsx');
         $excludedFields = $request->input('excluded_fields', []);
-
-        // Validate include headers
         $includeHeaders = $request->input('headers', true);
 
         // Query the entries by collection
@@ -50,4 +57,22 @@ class ExportController extends BaseController
             'excluded_fields' => $excludedFields,
         ]), "$collectionHandle.$fileType");
     }
+
+    /**
+     * Get all unique field handles for a collection.
+     * @param \Statamic\Entries\Collection $collection
+     * @return mixed
+     */
+    private function getFieldHandles(\Statamic\Entries\Collection $collection)
+    {
+        return $collection->entryBlueprints()->map(function (Blueprint $blueprint): array {
+            return $blueprint->fields()->all()->keys()->toArray();
+        })
+            ->flatten()
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+    }
+
 }

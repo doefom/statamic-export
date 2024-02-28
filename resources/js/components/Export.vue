@@ -89,7 +89,7 @@ export default {
                 <!-- Collection -->
                 <div class="select-input-container mb-4">
                     <div class="mb-2">
-                        <label class="mb-2 whitespace-nowrap" for="collection_handle">Collection</label>
+                        <label class="whitespace-nowrap" for="collection_handle">Collection</label>
                         <p class="text-xs text-gray-700">Select the file type for the export.</p>
                     </div>
                     <select-input v-model="collectionHandle"
@@ -103,13 +103,16 @@ export default {
                 <!-- File Type -->
                 <div class="select-input-container mb-4">
                     <div class="mb-2">
-                        <label class="mb-2 whitespace-nowrap" for="file_type">File Type</label>
+                        <label class="whitespace-nowrap" for="file_type">File Type</label>
                         <p class="text-xs text-gray-700">Select the file type for the export.</p>
                     </div>
                     <select-input v-model="fileType"
                                   :options="fileTypeOptions"
                                   id="file_type"
                                   style="min-width: 150px"/>
+                    <p class="text-red-500 text-xs mt-1" v-if="errors.file_type">
+                        {{ errors.file_type[0] }}
+                    </p>
                 </div>
 
                 <!-- Excluded Fields -->
@@ -140,7 +143,11 @@ export default {
 
                 <div class="flex">
                     <!-- Submit -->
-                    <button type="submit" class="btn-primary" :disabled="loading">{{ __('Export collection') }}</button>
+                    <button type="submit"
+                            class="btn-primary"
+                            :disabled="loading || !collectionHandle">
+                        {{ __('Export collection') }}
+                    </button>
                     <!-- Spinner Container -->
                     <loading-graphic v-if="loading" class="ml-4" inline></loading-graphic>
                 </div>
