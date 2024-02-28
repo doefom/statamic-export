@@ -16,7 +16,7 @@ Get your entries and collections ready in the format you need. Currently, we sup
 > Why no PDF you ask? Well, we're working on it. But for now, you can use the HTML format and convert it to PDF using a
 > variety of tools available online.
 
-We tried to use the best human readable representation for each format. For example, the Entries fieldtype will be
+We tried to use the best human-readable representation for each fieldtype. For example, the `Entries` fieldtype will be
 represented as a comma separated list of entry titles instead of multiple entry IDs.
 
 ## Supported Fieldtypes
@@ -50,13 +50,13 @@ Once installed, there are basically two ways to use this addon.
 ### Exporting Entries
 
 1. Head to the entries listing of one of your collections.
-2. Select one or more entries
+2. Select one or more entries.
 3. Click the "Export" action above the table.
 4. Choose your export format, exclude certain fields if you want to and specify whether you'd like to include headers (included by default).
 
 ### Exporting Collections
 
-1. Navigate to Utilities > Export
+1. Navigate to Utilities > Export.
 2. Select your collection, export format, add excluded fields if you want to and specify whether to include headers or not.
 3. Click the "Export collection" button.
 
