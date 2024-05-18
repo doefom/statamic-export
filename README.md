@@ -2,6 +2,10 @@
 
 > **Export entries and collections** from Statamic to a variety of formats including **XLSX, CSV, HTML and more**.
 
+### Supported versions
+- ✅ Statamic v4
+- ✅ Statamic v5
+
 ## Features
 
 Get your entries and collections ready in the format you need. Currently, we support the following formats:

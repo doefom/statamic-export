@@ -76,7 +76,7 @@ class EntriesExport implements FromCollection, WithStyles
 
         // Add the headers to the collection
         if (Arr::get($this->config, 'headers', true)) {
-            $result = array_prepend($result, $keys->toArray());
+            $result = Arr::prepend($result, $keys->toArray());
         }
 
         return collect($result);
