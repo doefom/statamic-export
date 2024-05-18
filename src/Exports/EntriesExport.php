@@ -37,11 +37,38 @@ class EntriesExport implements FromCollection, WithStyles
         foreach ($keys as $key => $label) {
             // Add the key to the collection if it doesn't exist
             foreach ($this->items as $index => $item) {
+                // Handle special field "date" separately
+                if ($key === 'date' && $item->hasDate()) {
+                    $date = $item->date();
+
+                    if ($date instanceof \Illuminate\Support\Carbon) {
+                        if ($item->hasSeconds()) {
+                            $value = $date->format('Y-m-d H:i:s');
+                        } elseif ($item->hasTime()) {
+                            $value = $date->format('Y-m-d H:i');
+                        } else {
+                            $value = $date->format('Y-m-d');
+                        }
+                    } else {
+                        $value = $date ?? '';
+                    }
+
+                    $result[$index][$key] = $value;
+                    continue;
+                }
+
+                // Handle special field "slug" separately
+                if ($key === 'slug') {
+                    $result[$index][$key] = $item->slug() ?? '';
+                    continue;
+                }
+
                 // If the key doesn't exist, add an empty string to avoid unnecessary augmentation.
                 if ($item->get($key) === null) {
                     $result[$index][$key] = ''; // Necessary to prevent mixing up columns
                     continue;
                 }
+
                 $value = $item->augmentedValue($key);
                 $result[$index][$key] = $this->toString($value);
             }
