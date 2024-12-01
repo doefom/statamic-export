@@ -104,7 +104,6 @@ class EntriesExport implements FromCollection, WithStyles
 
         if (
             $fieldType instanceof \Statamic\Fieldtypes\Text // Slug field type inherits from Text and therefore must not be checked separately
-            || $fieldType instanceof \Statamic\Fieldtypes\Bard
             || $fieldType instanceof \Statamic\Fieldtypes\Markdown
             || $fieldType instanceof \Statamic\Fieldtypes\Textarea
             || $fieldType instanceof \Statamic\Fieldtypes\Video
@@ -124,6 +123,10 @@ class EntriesExport implements FromCollection, WithStyles
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Toggle) {
             return $value->value() ? 'yes' : 'no';
+        }
+
+        if ($fieldType instanceof \Statamic\Fieldtypes\Bard) {
+            return json_encode($value->value());
         }
 
         if (
