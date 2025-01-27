@@ -146,7 +146,7 @@ class EntriesExport implements FromCollection, WithStyles
             || $fieldType instanceof \Statamic\Fieldtypes\Select
             || $fieldType instanceof \Statamic\Fieldtypes\Width
         ) {
-            return $value->value()->label();
+            return $value->value()->label() ?? $value->raw();
         }
 
         if (
