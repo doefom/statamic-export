@@ -71,6 +71,9 @@ export default {
                 })
                 .catch(error => (this.errors = error.errors))
                 .finally(() => (this.loading = false))
+        },
+        typeChanged() {
+            this.excludedFields = []
         }
     }
 }
@@ -110,7 +113,10 @@ export default {
                                 type="button"
                                 class="btn px-4"
                                 :class="{ active: type === option.value }"
-                                @click="type = option.value"
+                                @click="
+                                    type = option.value
+                                    typeChanged()
+                                "
                             >
                                 {{ option.label }}
                             </button>
