@@ -22,6 +22,10 @@ class ServiceProvider extends AddonServiceProvider
 
     public function bootAddon(): void
     {
+        $this->publishes([
+            __DIR__.'/../config/statamic/export.php' => config_path('statamic/export.php'),
+        ], 'statamic-export-config');
+
 
         // Register the export action
         Export::register();
