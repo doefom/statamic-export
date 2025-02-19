@@ -23,7 +23,8 @@ class ExportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'collection_handle' => 'required|string',
+            'type' => 'required|string|in:collections,users',
+            'collection_handle' => 'required_if:type,collections|string|nullable',
             'file_type' => 'nullable|string|in:xlsx,csv,tsv,ods,xls,html',
             'excluded_fields' => 'nullable|array',
             'headers' => 'nullable|boolean',

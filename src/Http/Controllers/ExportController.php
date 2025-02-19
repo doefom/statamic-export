@@ -4,6 +4,7 @@ namespace Doefom\StatamicExport\Http\Controllers;
 
 use Doefom\StatamicExport\Enums\FileType;
 use Doefom\StatamicExport\Exports\EntriesExport;
+use Doefom\StatamicExport\Exports\UsersExport;
 use Doefom\StatamicExport\Http\Requests\ExportRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -14,6 +15,7 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
+use Statamic\Facades\User;
 use Statamic\Fields\Blueprint;
 
 class ExportController extends BaseController
@@ -29,9 +31,12 @@ class ExportController extends BaseController
             return [$collection->handle() => $this->getFieldHandles($collection)];
         });
 
+        $userFieldHandles = $this->getUserFieldHandles();
+
         return view('statamic-export::export.utility', [
             'collections' => $collections->values(),
             'fieldHandles' => $fieldHandles,
+            'userFieldHandles' => $userFieldHandles,
             'fileTypes' => FileType::all(),
         ]);
     }
@@ -40,22 +45,27 @@ class ExportController extends BaseController
     {
         $this->authorize('access export utility');
 
-        // Get the request parameters
-        $collectionHandle = $request->input('collection_handle');
         $fileType = $request->input('file_type', 'xlsx');
         $excludedFields = $request->input('excluded_fields', []);
         $includeHeaders = $request->input('headers', true);
 
-        // Query the entries by collection
-        $items = Entry::query()
-            ->where('collection', $collectionHandle)
-            ->get();
+        if ($request->input('type') === 'users') {
+            $items = User::all();
+            $filename = 'users';
+        } else {
+            $collectionHandle = $request->input('collection_handle');
+            $items = Entry::query()
+                ->where('collection', $collectionHandle)
+                ->get();
+            $filename = $collectionHandle;
+        }
 
-        // Download the export
-        return Excel::download(new EntriesExport($items, [
+        $exporter = new EntriesExport($items, [
             'headers' => $includeHeaders,
             'excluded_fields' => $excludedFields,
-        ]), "$collectionHandle.$fileType");
+        ]);
+
+        return Excel::download($exporter, "$filename.$fileType");
     }
 
     /**
@@ -75,4 +85,18 @@ class ExportController extends BaseController
             ->all();
     }
 
+    /**
+     * Get all unique field handles for users.
+     * @return array
+     */
+    private function getUserFieldHandles()
+    {
+        return User::blueprint()
+            ->fields()
+            ->all()
+            ->keys()
+            ->sort()
+            ->values()
+            ->all();
+    }
 }

@@ -6,6 +6,7 @@
     <export
         :collections='@json($collections)'
         :field-handles='@json($fieldHandles)'
+        :user-field-handles='@json($userFieldHandles)'
         :file-types='@json($fileTypes)'
     >
         <template #csrf>@csrf</template>
