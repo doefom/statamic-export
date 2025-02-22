@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Arr;
-
 return [
     /*
     |--------------------------------------------------------------------------
@@ -20,5 +18,5 @@ return [
         //     ... do something with the value ...
         //     return (string) $transformedValue;
         // },
-    ]
+    ],
 ];
