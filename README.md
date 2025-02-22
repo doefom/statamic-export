@@ -1,6 +1,6 @@
 # Statamic Export
 
-> **Export entries and collections** from Statamic to a variety of formats including **XLSX, CSV, HTML and more**.
+> **Export entries, collections and users** from Statamic to a variety of formats including **XLSX, CSV, HTML and more**.
 
 ### Supported versions
 
