@@ -29,6 +29,7 @@ export default {
             if (this.type === 'users') {
                 return this.userFieldHandles || []
             }
+
             return this.fieldHandles[this.collectionHandle] || []
         }
     },
@@ -91,7 +92,7 @@ export default {
 
         <div class="card">
             <form @submit.prevent="submit">
-                <slot name="csrf" />
+                <slot name="csrf"/>
 
                 <!-- Type -->
                 <div class="mb-4">
@@ -130,7 +131,7 @@ export default {
                         <label class="whitespace-nowrap" for="collection_handle">Collection</label>
                         <p class="text-xs text-gray-700">Select the collection you want to export.</p>
                     </div>
-                    <select-input v-model="collectionHandle" :options="collectionOptions" id="collection_handle" />
+                    <select-input v-model="collectionHandle" :options="collectionOptions" id="collection_handle"/>
                     <p class="text-red-500 text-xs mt-1" v-if="errors.collection_handle">
                         {{ errors.collection_handle[0] }}
                     </p>
@@ -182,7 +183,7 @@ export default {
                                 of the field for each column.
                             </p>
                         </div>
-                        <toggle-input v-model="headers" id="headers" />
+                        <toggle-input v-model="headers" id="headers"/>
                     </label>
                 </div>
 
