@@ -104,6 +104,13 @@ class EntriesExport implements FromCollection, WithStyles
         }
 
         $fieldType = $value->fieldtype();
+        $fieldTypeClass = get_class($fieldType);
+
+        // Check for custom mapping
+        $mappings = config('statamic.export.fieldtype_mappings', []);
+        if (isset($mappings[$fieldTypeClass])) {
+            return (string) $mappings[$fieldTypeClass]($value);
+        }
 
         if (
             $fieldType instanceof \Statamic\Fieldtypes\Text // Slug field type inherits from Text and therefore must not be checked separately
