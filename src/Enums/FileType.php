@@ -23,6 +23,6 @@ enum FileType: string
 
     public static function all(): array
     {
-        return Arr::map(self::cases(), fn($fileType) => $fileType->value);
+        return Arr::map(self::cases(), fn ($fileType) => $fileType->value);
     }
 }

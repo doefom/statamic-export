@@ -3,12 +3,9 @@
 namespace Doefom\StatamicExport;
 
 use Doefom\StatamicExport\Actions\Export;
-use Doefom\StatamicExport\Enums\FileType;
 use Doefom\StatamicExport\Http\Controllers\ExportController;
 use Illuminate\Support\Facades\Route;
-use Statamic\Facades\Collection;
 use Statamic\Facades\Utility;
-use Statamic\Fields\Blueprint;
 use Statamic\Providers\AddonServiceProvider;
 
 class ServiceProvider extends AddonServiceProvider
@@ -40,5 +37,4 @@ class ServiceProvider extends AddonServiceProvider
         });
 
     }
-
 }

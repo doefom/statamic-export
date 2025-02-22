@@ -7,11 +7,11 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Statamic\Contracts\Auth\User;
-use Statamic\Entries\Entry;
 use Statamic\Contracts\Assets\Asset as AssetContract;
+use Statamic\Contracts\Auth\User;
 use Statamic\Contracts\Entries\Entry as EntryContract;
 use Statamic\Contracts\Taxonomies\Term as TermContract;
+use Statamic\Entries\Entry;
 use Statamic\Fields\Field;
 
 class EntriesExport implements FromCollection, WithStyles
@@ -25,8 +25,6 @@ class EntriesExport implements FromCollection, WithStyles
      * exists and if it does store the value. Else, store an empty string.
      *
      * If headers should be included, prepend those to the result array.
-     *
-     * @return Collection
      */
     public function collection(): Collection
     {
@@ -37,40 +35,7 @@ class EntriesExport implements FromCollection, WithStyles
         foreach ($keys as $key => $label) {
             // Add the key to the collection if it doesn't exist
             foreach ($this->items as $index => $item) {
-                // Handle special field "date" separately
-                if ($key === 'date' && $item->hasDate()) {
-                    $date = $item->date();
-
-                    if ($date instanceof \Illuminate\Support\Carbon) {
-                        if ($item->hasSeconds()) {
-                            $value = $date->format('Y-m-d H:i:s');
-                        } elseif ($item->hasTime()) {
-                            $value = $date->format('Y-m-d H:i');
-                        } else {
-                            $value = $date->format('Y-m-d');
-                        }
-                    } else {
-                        $value = $date ?? '';
-                    }
-
-                    $result[$index][$key] = $value;
-                    continue;
-                }
-
-                // Handle special field "slug" separately
-                if ($key === 'slug') {
-                    $result[$index][$key] = $item->slug() ?? '';
-                    continue;
-                }
-
-                // If the key doesn't exist, add an empty string to avoid unnecessary augmentation.
-                if ($item->get($key) === null) {
-                    $result[$index][$key] = ''; // Necessary to prevent mixing up columns
-                    continue;
-                }
-
-                $value = $item->augmentedValue($key);
-                $result[$index][$key] = $this->toString($value);
+                $result[$index][$key] = $this->getItemValue($item, $key);
             }
         }
 
@@ -80,6 +45,44 @@ class EntriesExport implements FromCollection, WithStyles
         }
 
         return collect($result);
+    }
+
+    private function getItemValue($item, $key): mixed
+    {
+        // Handle special field "date" separately
+        if ($key === 'date' && $item->hasDate()) {
+            $date = $item->date();
+
+            if ($date instanceof \Illuminate\Support\Carbon) {
+                if ($item->hasSeconds()) {
+                    $value = $date->format('Y-m-d H:i:s');
+                } elseif ($item->hasTime()) {
+                    $value = $date->format('Y-m-d H:i');
+                } else {
+                    $value = $date->format('Y-m-d');
+                }
+            } else {
+                $value = $date ?? '';
+            }
+
+            return $value;
+        }
+
+        if ($key === 'slug') {
+            return $item->slug();
+        }
+
+        if ($key === 'email') {
+            return $item->email();
+        }
+
+        if ($item->get($key) === null) {
+            return '';
+        }
+
+        $value = $item->augmentedValue($key);
+
+        return $this->toString($value);
     }
 
     public function styles(Worksheet $sheet): array
@@ -160,7 +163,7 @@ class EntriesExport implements FromCollection, WithStyles
         if ($fieldType instanceof \Statamic\Fieldtypes\Assets\Assets) {
             return $value->value() instanceof AssetContract
                 ? $value->value()->url() // Single asset
-                : $value->value()->get()->map(fn(AssetContract $asset) => $asset->url())->implode(', '); // Multiple assets
+                : $value->value()->get()->map(fn (AssetContract $asset) => $asset->url())->implode(', '); // Multiple assets
         }
 
         if (
@@ -173,18 +176,19 @@ class EntriesExport implements FromCollection, WithStyles
             || $fieldType instanceof \Statamic\Fieldtypes\UserRoles
         ) {
             return $value->value() instanceof \Illuminate\Support\Collection
-                ? $value->value()->map(fn($item) => $item->title())->implode(', ') // Multiple items
+                ? $value->value()->map(fn ($item) => $item->title())->implode(', ') // Multiple items
                 : $value->value()->title(); // Single item
         }
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Entries) {
             return $value->value() instanceof EntryContract
                 ? $value->value()->title // Single entry
-                : $value->value()->get()->map(fn(EntryContract $entry) => $entry->title)->implode(', '); // Multiple entries (\Statamic\Query\StatusQueryBuilder)
+                : $value->value()->get()->map(fn (EntryContract $entry) => $entry->title)->implode(', '); // Multiple entries (\Statamic\Query\StatusQueryBuilder)
         }
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Link) {
             $linkVal = $value->value()->value();
+
             return $linkVal instanceof EntryContract
                 ? $linkVal->title
                 : $linkVal;
@@ -193,19 +197,19 @@ class EntriesExport implements FromCollection, WithStyles
         if ($fieldType instanceof \Statamic\Fieldtypes\Sites) {
             return $value->value() instanceof \Statamic\Sites\Site
                 ? $value->value()->name()
-                : $value->value()->map(fn($site) => $site->name())->implode(', ');
+                : $value->value()->map(fn ($site) => $site->name())->implode(', ');
         }
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Terms) {
             return $value->value() instanceof TermContract
                 ? $value->value()->title()
-                : $value->value()->get()->map(fn($item) => $item->title())->implode(', ');
+                : $value->value()->get()->map(fn ($item) => $item->title())->implode(', ');
         }
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Users) {
             return $value->value() instanceof User
                 ? $value->value()->title
-                : $value->value()->get()->map(fn($item) => $item->title())->implode(', ');
+                : $value->value()->get()->map(fn ($item) => $item->title())->implode(', ');
         }
 
         if (
@@ -218,28 +222,26 @@ class EntriesExport implements FromCollection, WithStyles
         return '';
     }
 
-    private function getAllKeysCombined(Collection $items): Collection
+    protected function getAllKeysCombined(Collection $items): Collection
     {
         $excludedFields = Arr::get($this->config, 'excluded_fields', []);
 
         return $items
-            // Map each Entry item to its blueprint fields
-            ->map(fn(Entry $item) => $item->blueprint()->fields()->all())
+            // Map each item to its blueprint fields, handling both Entry and User types
+            ->map(fn (mixed $item) => $item->blueprint()->fields()->all())
             // Flatten the resulting collection to remove nested structures
             ->flatten()
             // Remove duplicate fields
-            ->unique(fn(Field $field) => $field->handle())
+            ->unique(fn (Field $field) => $field->handle())
             // Remove fields that are excluded by the user. If there are no excluded fields, this will have no effect.
-            ->filter(fn(Field $field) => !in_array($field->handle(), $excludedFields))
+            ->filter(fn (Field $field) => ! in_array($field->handle(), $excludedFields))
             // Filter out fields that are instances of certain field types
             ->filter(function (Field $field) {
-                return !$field->fieldtype() instanceof \Statamic\Fieldtypes\Hidden
-                    && !$field->fieldtype() instanceof \Statamic\Fieldtypes\Revealer
-                    && !$field->fieldtype() instanceof \Statamic\Fieldtypes\Html
-                    && !$field->fieldtype() instanceof \Statamic\Fieldtypes\Spacer;
+                return ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Hidden
+                    && ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Revealer
+                    && ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Html
+                    && ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Spacer;
             })
-            // Map the fields to a key-value pair with the handle as key and the display name as value
-            ->mapWithKeys(fn(Field $field) => [$field->handle() => $field->display()]);
+            ->mapWithKeys(fn ($field) => [$field->handle() => $field->display()]);
     }
-
 }
