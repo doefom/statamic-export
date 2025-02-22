@@ -8,13 +8,11 @@ use Maatwebsite\Excel\Facades\Excel;
 use Statamic\Actions\Action;
 use Statamic\Contracts\Auth\User;
 use Statamic\Entries\Entry;
-use Statamic\Forms\Submission;
 use Statamic\Support\Arr;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class Export extends Action
 {
-
     // TODO: Support form submissions as well
 
     public function __construct()
@@ -66,5 +64,4 @@ class Export extends Action
     {
         return 'Export';
     }
-
 }

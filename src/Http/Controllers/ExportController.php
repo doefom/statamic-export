@@ -4,14 +4,10 @@ namespace Doefom\StatamicExport\Http\Controllers;
 
 use Doefom\StatamicExport\Enums\FileType;
 use Doefom\StatamicExport\Exports\EntriesExport;
-use Doefom\StatamicExport\Exports\UsersExport;
 use Doefom\StatamicExport\Http\Requests\ExportRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
@@ -70,7 +66,7 @@ class ExportController extends BaseController
 
     /**
      * Get all unique field handles for a collection.
-     * @param \Statamic\Entries\Collection $collection
+     *
      * @return mixed
      */
     private function getFieldHandles(\Statamic\Entries\Collection $collection)
@@ -87,6 +83,7 @@ class ExportController extends BaseController
 
     /**
      * Get all unique field handles for users.
+     *
      * @return array
      */
     private function getUserFieldHandles()
