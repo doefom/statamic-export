@@ -16,9 +16,7 @@ use Statamic\Fields\Field;
 
 class EntriesExport implements FromCollection, WithStyles
 {
-    public function __construct(public Collection $items, public array $config = [])
-    {
-    }
+    public function __construct(public Collection $items, public array $config = []) {}
 
     /**
      * Get all keys from all items combined (unique). Then go through all keys and check for each item if the key
@@ -66,14 +64,6 @@ class EntriesExport implements FromCollection, WithStyles
             }
 
             return $value;
-        }
-
-        if ($key === 'slug') {
-            return $item->slug();
-        }
-
-        if ($key === 'email') {
-            return $item->email();
         }
 
         if ($item->get($key) === null) {
