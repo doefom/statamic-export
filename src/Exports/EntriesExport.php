@@ -16,9 +16,7 @@ use Statamic\Fields\Field;
 
 class EntriesExport implements FromCollection, WithStyles
 {
-    public function __construct(public Collection $items, public array $config = [])
-    {
-    }
+    public function __construct(public Collection $items, public array $config = []) {}
 
     /**
      * Get all keys from all items combined (unique). Then go through all keys and check for each item if the key
@@ -151,9 +149,21 @@ class EntriesExport implements FromCollection, WithStyles
         }
 
         if (
+            $fieldType instanceof \Statamic\Fieldtypes\Select
+        ) {
+            if (is_array($value->value())) {
+                return collect($value->value())
+                    ->map(fn ($item) => $item['label'] ?? $item['key'])
+                    ->filter()
+                    ->implode(', ');
+            }
+
+            return $value->value()->label() ?? $value->raw();
+        }
+
+        if (
             $fieldType instanceof \Statamic\Fieldtypes\ButtonGroup
             || $fieldType instanceof \Statamic\Fieldtypes\Radio
-            || $fieldType instanceof \Statamic\Fieldtypes\Select
             || $fieldType instanceof \Statamic\Fieldtypes\Width
         ) {
             return $value->value()->label() ?? $value->raw();
