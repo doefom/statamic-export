@@ -66,14 +66,6 @@ class EntriesExport implements FromCollection, WithStyles
             return $value;
         }
 
-        if ($key === 'slug') {
-            return $item->slug();
-        }
-
-        if ($key === 'email') {
-            return $item->email();
-        }
-
         if ($item->get($key) === null) {
             return '';
         }
