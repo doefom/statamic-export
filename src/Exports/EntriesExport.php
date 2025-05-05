@@ -93,6 +93,10 @@ class EntriesExport implements FromCollection, WithStyles
             return '';
         }
 
+        if ($value->value() instanceof \Statamic\Structures\Page) {
+            return $value->value()->id();
+        }
+
         $fieldType = $value->fieldtype();
         $fieldTypeClass = get_class($fieldType);
 
