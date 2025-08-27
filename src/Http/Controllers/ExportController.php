@@ -46,13 +46,13 @@ class ExportController extends BaseController
         $includeHeaders = $request->input('headers', true);
 
         if ($request->input('type') === 'users') {
-            $items = User::all();
+            $items = User::query()->lazy();
             $filename = 'users';
         } else {
             $collectionHandle = $request->input('collection_handle');
             $items = Entry::query()
                 ->where('collection', $collectionHandle)
-                ->get();
+                ->lazy();
             $filename = $collectionHandle;
         }
 
