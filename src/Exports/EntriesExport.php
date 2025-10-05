@@ -2,9 +2,10 @@
 
 namespace Doefom\StatamicExport\Exports;
 
+use Generator;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Illuminate\Support\LazyCollection;
+use Maatwebsite\Excel\Concerns\FromGenerator;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Statamic\Contracts\Assets\Asset as AssetContract;
@@ -14,9 +15,9 @@ use Statamic\Contracts\Taxonomies\Term as TermContract;
 use Statamic\Entries\Entry;
 use Statamic\Fields\Field;
 
-class EntriesExport implements FromCollection, WithStyles
+class EntriesExport implements FromGenerator, WithStyles
 {
-    public function __construct(public Collection $items, public array $config = []) {}
+    public function __construct(public Generator|LazyCollection $items, public array $config = []) {}
 
     /**
      * Get all keys from all items combined (unique). Then go through all keys and check for each item if the key
@@ -24,25 +25,40 @@ class EntriesExport implements FromCollection, WithStyles
      *
      * If headers should be included, prepend those to the result array.
      */
-    public function collection(): Collection
+    public function generator(): Generator
     {
-        // Get all unique keys from all items
-        $keys = $this->getAllKeysCombined($this->items);
+        Sheet::class;
+        $excludedFields = Arr::get($this->config, 'excluded_fields', []);
+        $keysForBlueprint = [];
 
-        $result = [];
-        foreach ($keys as $key => $label) {
-            // Add the key to the collection if it doesn't exist
-            foreach ($this->items as $index => $item) {
-                $result[$index][$key] = $this->getItemValue($item, $key);
+        foreach ($this->items as $index => $item) {
+            $blueprint = $item->blueprint();
+
+            if (!in_array($blueprint->handle(), $keysForBlueprint)) {
+                $keysForBlueprint[$blueprint->handle()] = $blueprint
+                    ->fields()
+                    ->all()
+                    ->unique(fn (Field $field) => $field->handle())
+                    ->filter(fn (Field $field) => ! in_array($field->handle(), $excludedFields))
+                    ->filter(fn(Field $field) => ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Hidden
+                            && ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Revealer
+                            && ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Html
+                            && ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Spacer)
+                    ->mapWithKeys(fn ($field) => [$field->handle() => $field->display()]);
             }
-        }
 
-        // Add the headers to the collection
-        if (Arr::get($this->config, 'headers', true)) {
-            $result = Arr::prepend($result, $keys->toArray());
-        }
+            // First row with headers
+            if ($index === 0 && Arr::get($this->config, 'headers', true)) {
+                yield $keysForBlueprint[$blueprint->handle()]->all();
+            }
 
-        return collect($result);
+            $row = [];
+            foreach ($keysForBlueprint[$blueprint->handle()] as $key => $label) {
+                $row[$label] = $this->getItemValue($item, $key);
+            }
+
+            yield $row;
+        }
     }
 
     private function getItemValue($item, $key): mixed
@@ -233,28 +249,5 @@ class EntriesExport implements FromCollection, WithStyles
         }
 
         return '';
-    }
-
-    protected function getAllKeysCombined(Collection $items): Collection
-    {
-        $excludedFields = Arr::get($this->config, 'excluded_fields', []);
-
-        return $items
-            // Map each item to its blueprint fields, handling both Entry and User types
-            ->map(fn (mixed $item) => $item->blueprint()->fields()->all())
-            // Flatten the resulting collection to remove nested structures
-            ->flatten()
-            // Remove duplicate fields
-            ->unique(fn (Field $field) => $field->handle())
-            // Remove fields that are excluded by the user. If there are no excluded fields, this will have no effect.
-            ->filter(fn (Field $field) => ! in_array($field->handle(), $excludedFields))
-            // Filter out fields that are instances of certain field types
-            ->filter(function (Field $field) {
-                return ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Hidden
-                    && ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Revealer
-                    && ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Html
-                    && ! $field->fieldtype() instanceof \Statamic\Fieldtypes\Spacer;
-            })
-            ->mapWithKeys(fn ($field) => [$field->handle() => $field->display()]);
     }
 }
