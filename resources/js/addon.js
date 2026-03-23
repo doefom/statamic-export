@@ -1,5 +1,5 @@
-import Export from './Components/Export.vue';
+import Export from './components/Export.vue';
 
 Statamic.booting(() => {
-    Statamic.$components.register('export', Export);
+    Statamic.$inertia.register('statamic-export::export.utility', Export);
 });
