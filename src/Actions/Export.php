@@ -44,7 +44,7 @@ class Export extends Action
     {
         $fileType = Arr::get($values, 'file_type', 'xlsx');
         $firstItem = $items->first();
-        $exporter = new EntriesExport($items, $values);
+        $exporter = new EntriesExport(collect($items)->lazy(), $values);
 
         if ($firstItem instanceof User) {
             $filename = 'users';
