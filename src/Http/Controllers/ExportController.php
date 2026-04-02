@@ -8,7 +8,9 @@ use Doefom\StatamicExport\Http\Requests\ExportRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
+use Statamic\Facades\Blueprint as BlueprintFacade;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Statamic\Facades\User;
@@ -26,14 +28,19 @@ class ExportController extends BaseController
         $fieldHandles = $collections->mapWithKeys(function ($collection) {
             return [$collection->handle() => $this->getFieldHandles($collection)];
         });
+        $excludedFieldsOptions = $fieldHandles;
+        $excludedFieldsOptions['users'] = $this->getUserFieldHandles();
 
-        $userFieldHandles = $this->getUserFieldHandles();
+        $values = [];
+        $blueprint = BlueprintFacade::makeFromFields($this->editBlueprint($collections));
+        $fields = $blueprint ->fields()->addValues($values)->preProcess();
 
-        return view('statamic-export::export.utility', [
-            'collections' => $collections->values(),
-            'fieldHandles' => $fieldHandles,
-            'userFieldHandles' => $userFieldHandles,
-            'fileTypes' => FileType::all(),
+        return Inertia::render('statamic-export::export.utility', [
+            'title' => 'Export',
+            'blueprint' => $blueprint->toPublishArray(),
+            'values' => $fields->values(),
+            'meta' => $fields->meta(),
+            'excludedFieldsOptions' => $excludedFieldsOptions
         ]);
     }
 
@@ -95,5 +102,75 @@ class ExportController extends BaseController
             ->sort()
             ->values()
             ->all();
+    }
+
+    protected function editBlueprint($collections)
+    {
+        $fileTypes = FileType::all();
+        
+        foreach ($collections as $collection) {
+            $collectionOptions[] = [
+                'key' => $collection->handle(),
+                'value' => $collection->title()
+            ];
+        }
+
+        foreach ($fileTypes as $type) {
+            $fileTypeOptions[] = [
+                'key' => $type,
+                'value' => strtoupper($type)
+            ];
+        }
+
+        return [
+            'type' => [
+                'type' => 'button_group', 
+                'display' => 'Export Type',
+                'instructions' => 'Choose what you want to export.',
+                'options' => [
+                    [
+                        'key' => 'collections',
+                        'value' => 'Collections'
+                    ],
+                    [
+                        'key' => 'users',
+                        'value' => 'Users'
+                    ]
+                ],
+                'default' => 'collections'
+            ],
+            'collection_handle' => [
+                'type' => 'select', 
+                'display' =>  'Collection',
+                'instructions' => 'Select the collection you want to export.',
+                'placeholder' => __('Choose...'),
+                'options' => $collectionOptions,
+                'clearable' => true,
+                'if' => ['type' => 'equals collections']
+            ],
+            'file_type' => [
+                'type' => 'select', 
+                'display' =>  'File Type',
+                'instructions' => 'Select the file type for the export.',
+                'placeholder' => __('Choose...'),
+                'options' => $fileTypeOptions,
+                'clearable' => true,
+                'default' => 'xlsx'
+            ],
+            'excluded_fields' => [
+                'type' => 'select', 
+                'display' =>  'Excluded Fields',
+                'instructions' => "Select the fields you want to exclude from the export. If you don't select any fields, all fields will be included.",
+                'placeholder' => __('Choose...'),
+                'options' => [],
+                'multiple' => true,
+            ],
+            'headers' => [
+                'type' => 'toggle',
+                'display' => 'Include Headers',
+                'instructions' => 'Add a header row as the first row of your exported file which contains the display names of the field for each column.',
+                'default' => true
+            ],
+        ];
     }
 }
