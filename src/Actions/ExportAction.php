@@ -11,7 +11,7 @@ use Statamic\Entries\Entry;
 use Statamic\Support\Arr;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class Export extends Action
+class ExportAction extends Action
 {
     // TODO: Support form submissions as well
 
@@ -63,5 +63,10 @@ class Export extends Action
     public function buttonText()
     {
         return 'Export';
+    }
+    
+    public static function title()
+    {
+        return __('Export');
     }
 }
