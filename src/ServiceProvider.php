@@ -2,7 +2,7 @@
 
 namespace Doefom\StatamicExport;
 
-use Doefom\StatamicExport\Actions\Export;
+use Doefom\StatamicExport\Actions\ExportAction;
 use Doefom\StatamicExport\Http\Controllers\ExportController;
 use Illuminate\Support\Facades\Route;
 use Statamic\Facades\Utility;
@@ -24,7 +24,7 @@ class ServiceProvider extends AddonServiceProvider
         ], 'statamic-export-config');
 
         // Register the export action
-        Export::register();
+        ExportAction::register();
 
         // Register the export utility
         Utility::extend(function () {
