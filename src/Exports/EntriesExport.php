@@ -122,7 +122,9 @@ class EntriesExport implements FromCollection, WithStyles
         }
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Code) {
-            return $value->value()->value();
+            // An empty Code field's inner value() is null, which would otherwise
+            // violate this method's `: string` return type and abort the export.
+            return $value->value()->value() ?? '';
         }
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Toggle) {
@@ -130,7 +132,12 @@ class EntriesExport implements FromCollection, WithStyles
         }
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Bard) {
-            return json_encode($value->value());
+            // Use the raw (unaugmented) value: augmenting resolves any nested
+            // Entries/Assets/Terms relations inside the Bard sets, which can
+            // recurse through the whole relation graph (e.g. a button linking
+            // to a page whose own content links back to this collection) and
+            // hang or exhaust memory instead of just exporting.
+            return json_encode($value->raw());
         }
 
         if (
@@ -141,7 +148,10 @@ class EntriesExport implements FromCollection, WithStyles
             || $fieldType instanceof \Statamic\Fieldtypes\Replicator
             || $fieldType instanceof \Statamic\Fieldtypes\Table
         ) {
-            return json_encode($value->value());
+            // Same reasoning as the Bard case above: these fieldtypes can nest
+            // relation fields in their rows, so augmenting (rather than using
+            // the raw value) can trigger unbounded/recursive relation lookups.
+            return json_encode($value->raw());
         }
 
         if (
@@ -240,6 +250,9 @@ class EntriesExport implements FromCollection, WithStyles
         $excludedFields = Arr::get($this->config, 'excluded_fields', []);
 
         return $items
+            // Entries sharing the same blueprint have the same fields, so only
+            // resolve each distinct blueprint once instead of once per item.
+            ->unique(fn (mixed $item) => $item->blueprint()->handle())
             // Map each item to its blueprint fields, handling both Entry and User types
             ->map(fn (mixed $item) => $item->blueprint()->fields()->all())
             // Flatten the resulting collection to remove nested structures
