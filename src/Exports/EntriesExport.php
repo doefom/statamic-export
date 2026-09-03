@@ -66,6 +66,13 @@ class EntriesExport implements FromCollection, WithStyles
             return $value;
         }
 
+        // The slug isn't stored in the item's data array (it's a separate
+        // property), so item->get('slug') is always null and would
+        // otherwise fall through to the empty-string case below.
+        if ($key === 'slug' && method_exists($item, 'slug')) {
+            return $item->slug() ?? '';
+        }
+
         if ($item->get($key) === null) {
             return '';
         }
