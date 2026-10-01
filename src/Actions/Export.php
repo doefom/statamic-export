@@ -40,7 +40,7 @@ class Export extends Action
         ];
     }
 
-    public function download($items, $values): BinaryFileResponse|bool
+    public function download($items, $values): BinaryFileResponse
     {
         $fileType = Arr::get($values, 'file_type', 'xlsx');
         $firstItem = $items->first();

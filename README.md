@@ -4,8 +4,12 @@
 
 ### Supported versions
 
-- ✅ Statamic v4
-- ✅ Statamic v5
+- ✅ Statamic v6
+
+### Requirements
+
+- PHP 8.3 or later
+- Statamic v6
 
 ## Features
 
@@ -77,7 +81,7 @@ You can search for this addon in the `Tools > Addons` section of the Statamic co
 
 Alternatively, install the addon using Composer by running the following command in your project root:
 
-``` bash
+```bash
 composer require doefom/statamic-export
 ```
 
