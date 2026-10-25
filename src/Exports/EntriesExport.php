@@ -94,7 +94,24 @@ class EntriesExport implements FromCollection, WithStyles
         return $styles;
     }
 
+    /**
+     * Normalize whatever a fieldtype resolves to into a cell string. Branches in
+     * resolveValue() can yield null, arrays or numbers depending on the stored
+     * data, so coerce here instead of guarding every branch individually.
+     */
     private function toString(mixed $value): string
+    {
+        $resolved = $this->resolveValue($value);
+
+        return match (true) {
+            $resolved === null => '',
+            is_bool($resolved) => $resolved ? 'yes' : 'no',
+            is_scalar($resolved), $resolved instanceof \Stringable => (string) $resolved,
+            default => json_encode($resolved) ?: '',
+        };
+    }
+
+    private function resolveValue(mixed $value): mixed
     {
         if ($value->value() === null) {
             return '';
@@ -105,12 +122,17 @@ class EntriesExport implements FromCollection, WithStyles
         }
 
         $fieldType = $value->fieldtype();
+
+        if (! $fieldType) {
+            return $value->raw();
+        }
+
         $fieldTypeClass = get_class($fieldType);
 
         // Check for custom mapping
         $mappings = config('statamic.export.fieldtype_mappings', []);
         if (isset($mappings[$fieldTypeClass])) {
-            return (string) $mappings[$fieldTypeClass]($value);
+            return $mappings[$fieldTypeClass]($value);
         }
 
         if (
@@ -129,9 +151,7 @@ class EntriesExport implements FromCollection, WithStyles
         }
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Code) {
-            // An empty Code field's inner value() is null, which would otherwise
-            // violate this method's `: string` return type and abort the export.
-            return $value->value()->value() ?? '';
+            return $value->value()->value();
         }
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Toggle) {
