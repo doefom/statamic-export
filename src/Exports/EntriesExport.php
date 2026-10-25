@@ -139,6 +139,11 @@ class EntriesExport implements FromCollection, WithStyles
         }
 
         if ($fieldType instanceof \Statamic\Fieldtypes\Bard) {
+            // Without sets, the augmented value is plain HTML and cheap to produce.
+            if (! $fieldType->config('sets')) {
+                return json_encode($value->value());
+            }
+
             // Use the raw (unaugmented) value: augmenting resolves any nested
             // Entries/Assets/Terms relations inside the Bard sets, which can
             // recurse through the whole relation graph (e.g. a button linking
@@ -147,9 +152,13 @@ class EntriesExport implements FromCollection, WithStyles
             return json_encode($value->raw());
         }
 
+        // Checkboxes can't contain relations, so keep the augmented value including labels.
+        if ($fieldType instanceof \Statamic\Fieldtypes\Checkboxes) {
+            return json_encode($value->value());
+        }
+
         if (
-            $fieldType instanceof \Statamic\Fieldtypes\Checkboxes
-            || $fieldType instanceof \Statamic\Fieldtypes\Arr
+            $fieldType instanceof \Statamic\Fieldtypes\Arr
             || $fieldType instanceof \Statamic\Fieldtypes\Grid
             || $fieldType instanceof \Statamic\Fieldtypes\Group
             || $fieldType instanceof \Statamic\Fieldtypes\Replicator
