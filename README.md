@@ -6,6 +6,7 @@
 
 - ✅ Statamic v4
 - ✅ Statamic v5
+- ✅ Statamic v6
 
 ## Features
 
